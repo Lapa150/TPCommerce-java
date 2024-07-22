@@ -1,5 +1,7 @@
 package com.example.demo.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.example.demo.entities.Invoice;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.services.InvoicesService;

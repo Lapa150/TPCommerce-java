@@ -1,5 +1,7 @@
 package com.example.demo.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.example.demo.entities.Product;
 import com.example.demo.services.ProductsService;
 import org.springframework.http.ResponseEntity;

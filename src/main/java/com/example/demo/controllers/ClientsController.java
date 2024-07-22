@@ -1,5 +1,7 @@
 package com.example.demo.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import com.example.demo.entities.Client;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
