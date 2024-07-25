@@ -74,4 +74,21 @@ public class CartsController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    // Actualizar cantidad de un producto en el carrito
+    @PutMapping("/{cartId}/updateProduct/{productId}")
+    public ResponseEntity<Cart> updateProductQuantity(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int newQuantity) {
+        try {
+            Cart updatedCart = cartsService.updateProductQuantity(cartId, productId, newQuantity);
+            return ResponseEntity.ok(updatedCart);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
 }

@@ -58,6 +58,7 @@ public class ClientsController {
         }
     }
 
+    // Actualizar cliente
     @PutMapping("/{id}")
     public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client clientDetails) {
         try {

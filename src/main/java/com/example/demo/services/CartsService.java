@@ -81,7 +81,7 @@ public class CartsService {
                 productsRepository.save(product); // Guardar el producto con el nuevo stock
                 return cartsRepository.save(cart);
             } else {
-                throw new RuntimeException("Not enoughstock");
+                throw new RuntimeException("Not enough stock");
             }
         } else {
             throw new RuntimeException("Cart or product not found");
@@ -89,12 +89,12 @@ public class CartsService {
     }
     // Eliminar producto del carrito
     public Cart removeProductFromCart(Long cartId, Long productId, int quantity) {
-        Optional<Cart> cartOpt = cartsRepository.findById(cartId);
-        Optional<Product> productOpt = productsRepository.findById(productId);
+        Optional<Cart> cartToUpdate = cartsRepository.findById(cartId);
+        Optional<Product> productToUpdate = productsRepository.findById(productId);
 
-        if (cartOpt.isPresent() && productOpt.isPresent()) {
-            Cart cart = cartOpt.get();
-            Product product = productOpt.get();
+        if (cartToUpdate.isPresent() && productToUpdate.isPresent()) {
+            Cart cart = cartToUpdate.get();
+            Product product = productToUpdate.get();
 
             int currentQuantity = cart.getQuantities().getOrDefault(product.getId(), 0);
             if (currentQuantity >= quantity) {
@@ -105,13 +105,46 @@ public class CartsService {
                 } else {
                     cart.getQuantities().put(product.getId(), newQuantity);
                 }
+
+                // Sumar cantidad al stock
+                product.setStock(product.getStock() + quantity);
+                productsRepository.save(product);
+
                 cart.calculateTotal();
                 return cartsRepository.save(cart);
             } else {
-                throw new RuntimeException("Cantidad a eliminar excede la cantidad en el carrito");
+                throw new RuntimeException("La cantidad a eliminar excede la cantidad en el carrito");
             }
         } else {
             throw new RuntimeException("Carrito o producto no encontrado");
+        }
+    }
+
+    // Actualizar cantidad de producto en el carrito
+    public Cart updateProductQuantity(Long cartId, Long productId, int newQuantity) {
+        Optional<Cart> cartToUpdate = cartsRepository.findById(cartId);
+        Optional<Product> productToUpdate = productsRepository.findById(productId);
+
+        if (cartToUpdate.isPresent() && productToUpdate.isPresent()) {
+            Cart cart = cartToUpdate.get();
+            Product product = productToUpdate.get();
+
+            int currentQuantity = cart.getQuantities().getOrDefault(product.getId(), 0);
+
+            // Ajustar el stock del producto según la nueva cantidad
+            int stockChange = newQuantity - currentQuantity;
+            if (product.getStock() >= stockChange) {
+                cart.getQuantities().put(product.getId(), newQuantity);
+                product.setStock(product.getStock() - stockChange);
+                productsRepository.save(product);
+
+                cart.calculateTotal();
+                return cartsRepository.save(cart);
+            } else {
+                throw new RuntimeException("Not enough stock to update quantity");
+            }
+        } else {
+            throw new RuntimeException("Cart or product not found");
         }
     }
 }
