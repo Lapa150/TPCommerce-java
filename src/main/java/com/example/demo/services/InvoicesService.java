@@ -54,10 +54,14 @@ public class InvoicesService {
 
             if (clientCartOpt.isPresent()) {
                 Cart clientCart = clientCartOpt.get();
+                //Creacion del invoice
                 Invoice invoice = new Invoice();
                 invoice.setClient(client);
                 invoice.setInvoiceDate(new Date());
                 invoice.setTotalAmount(clientCart.getTotal());
+
+                clientCart.setDelivered(true);
+                cartsService.saveCart(clientCart);
 
                 return invoicesRepository.save(invoice);
             } else {

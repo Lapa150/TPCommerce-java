@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import com.example.demo.entities.Client;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "api/v1/clients")
+@Tag(name= "Controller for clients", description = "Methods for clients")
 public class ClientsController {
 
     @Autowired
@@ -20,6 +22,7 @@ public class ClientsController {
 
     // Crear un nuevo cliente
     @PostMapping
+    @Operation(summary = "create client", description = "Save a client with name and dni strings" )
     public Client createClient(@RequestBody Client client) {
         try {
             return clientsService.createClient(client);

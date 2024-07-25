@@ -44,4 +44,6 @@ public class Cart {
                 .mapToDouble(product -> product.getPrice() * quantities.get(product.getId()))
                 .sum();
     }
+
+    @Getter @Setter private boolean delivered;
 }

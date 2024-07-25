@@ -72,16 +72,21 @@ public class CartsService {
             Cart cart = cartOpt.get();
             Product product = productOpt.get();
 
-            cart.getProducts().add(product);
-            cart.getQuantities().put(product.getId(), quantity);
-            cart.calculateTotal();
+            if (product.getStock() >= quantity) {
+                cart.getProducts().add(product);
+                cart.getQuantities().put(product.getId(), quantity);
+                product.setStock(product.getStock() - quantity); // Restar cantidad del stock
+                cart.calculateTotal();
 
-            return cartsRepository.save(cart);
+                productsRepository.save(product); // Guardar el producto con el nuevo stock
+                return cartsRepository.save(cart);
+            } else {
+                throw new RuntimeException("Not enoughstock");
+            }
         } else {
-            throw new RuntimeException("Carrito o producto no encontrado");
+            throw new RuntimeException("Cart or product not found");
         }
     }
-
     // Eliminar producto del carrito
     public Cart removeProductFromCart(Long cartId, Long productId, int quantity) {
         Optional<Cart> cartOpt = cartsRepository.findById(cartId);
