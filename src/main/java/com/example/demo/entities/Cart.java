@@ -26,7 +26,10 @@ public class Cart {
             joinColumns = @JoinColumn(name = "cart_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
+
+
     @Getter @Setter private List<Product> products;
+
 
     @Temporal(TemporalType.TIMESTAMP)
     @Getter @Setter private Date creationDate = new Date();

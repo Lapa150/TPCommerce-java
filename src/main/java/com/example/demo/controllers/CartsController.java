@@ -91,4 +91,17 @@ public class CartsController {
         }
     }
 
+    // Verificar si el carrito del cliente ha sido entregado
+    @GetMapping("/{clientId}/isDelivered")
+    public ResponseEntity<String> isCartDelivered(@PathVariable Long clientId) {
+        try {
+            String deliveryStatus = cartsService.isCartDelivered(clientId);
+            return ResponseEntity.ok(deliveryStatus);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
 }

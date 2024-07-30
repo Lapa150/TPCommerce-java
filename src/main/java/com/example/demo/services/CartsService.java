@@ -147,4 +147,25 @@ public class CartsService {
             throw new RuntimeException("Cart or product not found");
         }
     }
+
+    // Verificar si el carrito del cliente ha sido entregado
+    public String isCartDelivered(Long clientId) {
+        Optional<Client> clientOpt = clientsRepository.findById(clientId);
+        if (clientOpt.isPresent()) {
+            Client client = clientOpt.get();
+            Optional<Cart> cartOpt = getCartForClient(client);
+            if (cartOpt.isPresent()) {
+                boolean isDelivered = cartOpt.get().isDelivered();
+                if (isDelivered) {
+                    return "Cart delivered";
+                } else {
+                    return "Cart not delivered";
+                }
+            } else {
+                throw new RuntimeException("No se encontró un carrito para el cliente con ID: " + clientId);
+            }
+        } else {
+            throw new RuntimeException("Cliente no encontrado con ID: " + clientId);
+        }
+    }
 }
