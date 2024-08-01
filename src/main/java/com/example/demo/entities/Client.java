@@ -18,6 +18,10 @@ public class Client {
 
     @Getter @Setter private int dni;
 
+    @Getter @Setter private String email;
+
+
+
     // un cliente puede tener muchos carritos
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Cart> carts;

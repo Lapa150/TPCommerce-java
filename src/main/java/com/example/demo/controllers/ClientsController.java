@@ -45,7 +45,32 @@ public class ClientsController {
         return client.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    // Eliminar un cliente
+    // Mostrar la cantidad de clientes total
+    @GetMapping("/count")
+    public long getClientCount() {
+        return clientsService.countClients();
+    }
+
+
+    // Buscar un cliente por email
+    @GetMapping("/exists-by-email")
+    public boolean existsByEmail(@RequestParam String email) {
+        return clientsService.existsByEmail(email);
+    }
+
+    // Endpoint para buscar clientes por nombre
+    @GetMapping("/search")
+    public List<Client> findClientsByName(@RequestParam String name) {
+        return clientsService.findClientsByName(name);
+    }
+
+    // Endpoint para obtener clientes con carritos pendientes
+    @GetMapping("/with-pending-carts")
+    public List<Client> getClientsWithPendingCarts() {
+        return clientsService.getClientsWithPendingCarts();
+    }
+
+    // Eliminar un cliente por id
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteClient(@PathVariable Long id) {
         try {
