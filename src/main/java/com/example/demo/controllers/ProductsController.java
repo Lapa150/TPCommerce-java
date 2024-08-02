@@ -7,6 +7,7 @@ import com.example.demo.services.ProductsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,4 +55,28 @@ public class ProductsController {
             return ResponseEntity.status(500).body("DELETE ERROR");
         }
     }
+
+    // obtener productos dentro de un rango de precios
+    @GetMapping("/price-range")
+    public List<Product> findProductsByPriceRange(
+            @RequestParam double minPrice,
+            @RequestParam double maxPrice) {
+        return productsService.findProductsByPriceBetween(minPrice, maxPrice);
+    }
+
+    // Actualizar un producto existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @RequestBody Product productDetails) {
+        Optional<Product> updatedProduct = productsService.updateProduct(id, productDetails);
+
+        if (updatedProduct.isPresent()) {
+            return new ResponseEntity<>(updatedProduct.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 }

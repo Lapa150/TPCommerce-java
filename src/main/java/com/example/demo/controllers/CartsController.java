@@ -6,6 +6,7 @@ import com.example.demo.services.CartsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +103,14 @@ public class CartsController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal server error");
         }
+    }
+
+    // Vaciar un carrito
+    @DeleteMapping("/{id}/clear")
+    public ResponseEntity<Cart> clearCart(@PathVariable Long id) {
+        return cartsService.clearCart(id)
+                .map(updatedCart -> new ResponseEntity<>(updatedCart, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
 }

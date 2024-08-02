@@ -168,4 +168,12 @@ public class CartsService {
             throw new RuntimeException("Cliente no encontrado con ID: " + clientId);
         }
     }
+
+    // Método para vaciar un carrito
+    public Optional<Cart> clearCart(Long cartId) {
+        return cartsRepository.findById(cartId).map(cart -> {
+            cart.getProducts().clear();
+            return cartsRepository.save(cart);
+        });
+    }
 }

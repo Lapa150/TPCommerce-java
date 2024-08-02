@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface CartsRepository extends JpaRepository<Cart, Long> {
 
+
+
     //Metodo para obtener un carrito por nombre de cliente
     Optional<Cart> findByClient(Client client);
 
