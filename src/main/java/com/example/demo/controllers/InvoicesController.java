@@ -22,6 +22,8 @@ public class InvoicesController {
 
     // Generar factura para un cliente
     @PostMapping("/generate-invoice/{clientId}")
+    @Operation(summary = "Generate invoice for client",
+            description = "Generates an invoice for a client through its id and set the cart to delivered" )
     public ResponseEntity<String> generateInvoiceForClient(@PathVariable Long clientId) {
         try {
             String resultMessage = invoicesService.generateInvoiceForClient(clientId);
@@ -36,17 +38,23 @@ public class InvoicesController {
 
 
     @GetMapping
+    @Operation(summary = "Get all the invoices",
+            description = "Shows all the invoices with their data" )
     public List<Invoice> getAllInvoices() {
         return invoicesService.getAllInvoices();
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get invoice by id",
+            description = "shows the invoice data placing its id" )
     public ResponseEntity<Invoice> getInvoiceById(@PathVariable Long id) {
         Optional<Invoice> invoice = invoicesService.getInvoiceById(id);
         return invoice.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "delete invoice",
+            description = "delete an invoice placing its id" )
     public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
         try {
             invoicesService.deleteInvoice(id);

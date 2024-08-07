@@ -4,6 +4,7 @@ import com.example.demo.entities.Client;
 import com.example.demo.services.ClientsService;
 import com.example.demo.entities.Cart;
 import com.example.demo.services.CartsService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,8 @@ public class CartsController {
 
     // Crear un nuevo carrito para un cliente
     @PostMapping("/create/{clientId}")
+    @Operation(summary = "Create cart",
+            description = "Create a cart associated with a client id." )
     public ResponseEntity<String> createCart(@PathVariable Long clientId) {
         try {
             String message = cartsService.createCartForClient(clientId);
@@ -45,12 +48,16 @@ public class CartsController {
 
     // Obtener todos los carritos
     @GetMapping
+    @Operation(summary = "Get all carts",
+            description = "Shows all the carts with the associated client and their data" )
     public List<Cart> getAllCarts() {
         return cartsService.getAllCarts();
     }
 
     // Obtener un carrito por ID
     @GetMapping("/{id}")
+    @Operation(summary = "Get cart by id.",
+            description = "Shows a cart using its id. " )
     public ResponseEntity<Cart> getCartById(@PathVariable Long id) {
         Optional<Cart> cart = cartsService.getCartById(id);
         return cart.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
@@ -58,6 +65,8 @@ public class CartsController {
 
     // Eliminar un carrito por ID
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete cart",
+            description = "Deletes a cart using its id" )
     public ResponseEntity<String> deleteCart(@PathVariable Long id) {
         try {
             cartsService.deleteCart(id);
@@ -70,6 +79,8 @@ public class CartsController {
 
     // Añadir producto al carrito
     @PostMapping("/add/{cartId}/{productId}")
+    @Operation(summary = "Add product to cart",
+            description = "Using the cart id, the id of the product to be added is placed along with the quantity" )
     public ResponseEntity<String> addProductToCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
@@ -85,6 +96,8 @@ public class CartsController {
 
     // Eliminar producto del carrito
     @DeleteMapping("/remove/{cartId}/{productId}")
+    @Operation(summary = "Remove product from cart",
+            description = "Uses the cart id and the product id to be removed completely" )
     public ResponseEntity<String> removeProductFromCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
@@ -102,6 +115,8 @@ public class CartsController {
 
     // Actualizar cantidad de producto en el carrito
     @PutMapping("/update/{cartId}/{productId}")
+    @Operation(summary = "Update product quantity",
+            description = "Uses the cart id and product id, then puts the new quantity of product." )
     public ResponseEntity<String> updateProductQuantity(
             @PathVariable Long cartId,
             @PathVariable Long productId,
@@ -118,6 +133,8 @@ public class CartsController {
 
     // Verificar si el carrito del cliente ha sido entregado
     @GetMapping("/{clientId}/isDelivered")
+    @Operation(summary = "verify if cart is delivered",
+            description = "shows if the cart was delivered or not" )
     public ResponseEntity<String> isCartDelivered(@PathVariable Long clientId) {
         try {
             String deliveryStatus = cartsService.isCartDelivered(clientId);
@@ -131,6 +148,8 @@ public class CartsController {
 
     // Vaciar un carrito
     @DeleteMapping("/clear/{cartId}")
+    @Operation(summary = "clean cart",
+            description = "remove al products from the cart" )
     public ResponseEntity<String> clearCart(@PathVariable Long cartId) {
         try {
             String resultMessage = cartsService.clearCart(cartId);

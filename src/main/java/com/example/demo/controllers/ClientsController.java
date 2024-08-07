@@ -26,7 +26,8 @@ public class ClientsController {
 
     // Crear un nuevo cliente
     @PostMapping
-    @Operation(summary = "create client", description = "Save a client with name and dni strings" )
+    @Operation(summary = "create client",
+            description = "Save a client with name, dni and email." )
     public Client createClient(@RequestBody Client client) {
         try {
             return clientsService.createClient(client);
@@ -36,14 +37,18 @@ public class ClientsController {
         }
     }
 
-    // Obtener todos los clientes
+
     @GetMapping
+    @Operation(summary = "Show all clients",
+            description = "Generate a list for all clients in the repository with their data" )
     public List<Client> getAllClients() {
         return clientsService.getAllClients();
     }
 
     // Obtener un cliente por id
     @GetMapping("/{id}")
+    @Operation(summary = "Get a client using an id",
+            description = "Shows all the data about the client" )
     public ResponseEntity<Client> getClientById(@PathVariable Long id) {
         Optional<Client> client = clientsService.getClientById(id);
         return client.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
@@ -51,6 +56,8 @@ public class ClientsController {
 
     // Mostrar la cantidad de clientes total
     @GetMapping("/count")
+    @Operation(summary = "Show the total number of clients",
+            description = "Shows in a number how many clients there are in the repository." )
     public ResponseEntity<String> getClientCount() {
         long count = clientsService.countClients();
         String message = "Clients in the application: " + count;
@@ -60,6 +67,8 @@ public class ClientsController {
 
     // Buscar un cliente por email
     @GetMapping("/by-email")
+    @Operation(summary = "Search for a client by email",
+            description = "If the email exist in the repository, its respective client will be seen." )
     public ResponseEntity<Client> getClientByEmail(@RequestParam String email) {
         Optional<Client> client = clientsService.getClientByEmail(email);
         return client.map(ResponseEntity::ok)
@@ -68,12 +77,16 @@ public class ClientsController {
 
     // Buscar clientes por nombre
     @GetMapping("/search")
+    @Operation(summary = "Search clients by name",
+            description = "If the name exist in the repository, its respective client will be seen." )
     public List<Client> findClientsByName(@RequestParam String name) {
         return clientsService.findClientsByName(name);
     }
 
     // Obtener clientes con carritos pendientes
     @GetMapping("/with-pending-carts")
+    @Operation(summary = "Get client with pending carts",
+            description = "Shows all the clients with undelivered carts" )
     public ResponseEntity<?> getClientsWithPendingCarts() {
         List<Client> clients = clientsService.getClientsWithPendingCarts();
         if (clients.isEmpty()) {
@@ -84,6 +97,8 @@ public class ClientsController {
 
     // Eliminar un cliente por id
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a client by id",
+            description = "Delete a client with their carts and invoices" )
     public ResponseEntity<String> deleteClient(@PathVariable Long id) {
         try {
             clientsService.deleteClient(id);
@@ -97,6 +112,8 @@ public class ClientsController {
 
     // Actualizar cliente
     @PutMapping("/{id}")
+    @Operation(summary = "Update client",
+            description = "allows edit the name, dni and email." )
     public ResponseEntity<Map<String, String>> updateClient(@PathVariable Long id, @RequestBody Client clientDetails) {
         try {
             Optional<Client> updatedClient = clientsService.updateClient(id, clientDetails);
@@ -116,6 +133,8 @@ public class ClientsController {
 
     // Endpoint para eliminar todos los clientes
     @DeleteMapping
+    @Operation(summary = "Delete all clients",
+            description = "" )
     public ResponseEntity<String> deleteAllClients() {
         clientsService.deleteAllClients();
         return new ResponseEntity<>("All clients have been deleted", HttpStatus.OK);

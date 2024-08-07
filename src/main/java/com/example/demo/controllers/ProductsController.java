@@ -19,8 +19,10 @@ public class ProductsController {
     @Autowired
     private ProductsService productsService;
 
-    // Crear un nuevo producto
+
     @PostMapping
+    @Operation(summary = "Create new product",
+            description = "Creates a new product with name, price and stock." )
     public Product createProduct(@RequestBody Product product) {
         try {
             return productsService.saveProduct(product);
@@ -30,21 +32,26 @@ public class ProductsController {
         }
     }
 
-    // Obtener todos los productos
+
     @GetMapping
+    @Operation(summary = "Show all products",
+            description = "Shows a list with all the products and their data" )
     public List<Product> getAllProducts() {
         return productsService.getAllProducts();
     }
 
-    // Obtener un producto por id
     @GetMapping("/{id}")
+    @Operation(summary = "Get product by Id",
+            description = "Shows a product data using their id" )
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Optional<Product> product = productsService.getProductById(id);
         return product.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
     }
 
-    // Eliminar un producto
+   
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete product",
+            description = "Delete a product using their id." )
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         try {
             productsService.deleteProduct(id);
@@ -58,6 +65,8 @@ public class ProductsController {
 
     // obtener productos dentro de un rango de precios
     @GetMapping("/price-range")
+    @Operation(summary = "Get products in a price range",
+            description = "set the minimum price and maximum price to show the products within that parameter." )
     public List<Product> findProductsByPriceRange(
             @RequestParam double minPrice,
             @RequestParam double maxPrice) {
@@ -66,6 +75,8 @@ public class ProductsController {
 
     // Actualizar un producto
     @PutMapping("/{id}")
+    @Operation(summary = "Update product",
+            description = "Allows editing the name, price and stock of the product selected by its id." )
     public ResponseEntity<String> updateProduct(
             @PathVariable Long id,
             @RequestBody Product productDetails) {
