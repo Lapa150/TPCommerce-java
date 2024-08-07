@@ -20,7 +20,6 @@ public class InvoicesController {
     private InvoicesService invoicesService;
 
 
-    // Generar factura para un cliente
     @PostMapping("/generate-invoice/{clientId}")
     @Operation(summary = "Generate invoice for client",
             description = "Generates an invoice for a client through its id and set the cart to delivered" )
@@ -33,8 +32,6 @@ public class InvoicesController {
             return new ResponseEntity<>("Error generating invoice", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 
     @GetMapping

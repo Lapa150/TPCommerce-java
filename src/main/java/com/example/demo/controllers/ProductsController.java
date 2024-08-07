@@ -63,7 +63,7 @@ public class ProductsController {
         }
     }
 
-    // obtener productos dentro de un rango de precios
+
     @GetMapping("/price-range")
     @Operation(summary = "Get products in a price range",
             description = "set the minimum price and maximum price to show the products within that parameter." )
@@ -73,7 +73,7 @@ public class ProductsController {
         return productsService.findProductsByPriceBetween(minPrice, maxPrice);
     }
 
-    // Actualizar un producto
+
     @PutMapping("/{id}")
     @Operation(summary = "Update product",
             description = "Allows editing the name, price and stock of the product selected by its id." )
@@ -92,7 +92,5 @@ public class ProductsController {
             return new ResponseEntity<>("Error updating product", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 }
