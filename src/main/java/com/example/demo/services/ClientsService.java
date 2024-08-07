@@ -42,9 +42,10 @@ public class ClientsService {
      }
 
      //Buscar cliente por email
-     public boolean existsByEmail(String email) {
-          return clientsRepository.existsByEmail(email);
+     public Optional<Client> getClientByEmail(String email) {
+          return clientsRepository.findByEmail(email);
      }
+
 
 
      //Obtener cliente por nombre
@@ -73,9 +74,16 @@ public class ClientsService {
      public Optional<Client> updateClient(Long id, Client clientDetails) {
           return clientsRepository.findById(id).map(existingClient -> {
                existingClient.setName(clientDetails.getName());
+               existingClient.setDni(clientDetails.getDni());
+               existingClient.setEmail(clientDetails.getEmail());
 
                return clientsRepository.save(existingClient);
           });
+     }
+
+     // Eliminar todos los clientes
+     public void deleteAllClients() {
+          clientsRepository.deleteAll();
      }
 
 }

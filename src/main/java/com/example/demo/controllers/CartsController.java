@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
-
+import com.example.demo.entities.Client;
+import com.example.demo.services.ClientsService;
 import com.example.demo.entities.Cart;
 import com.example.demo.services.CartsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,14 +19,27 @@ public class CartsController {
     @Autowired
     private CartsService cartsService;
 
-    // Crear un nuevo carrito y asociarlo con un cliente
+    @Autowired
+    private ClientsService clientsService;
+
+
+
+
+
+    // Crear un nuevo carrito para un cliente
     @PostMapping("/create/{clientId}")
-    public Cart createCart(@PathVariable Long clientId) {
+    public ResponseEntity<String> createCart(@PathVariable Long clientId) {
         try {
-            return cartsService.createCartForClient(clientId);
+            String message = cartsService.createCartForClient(clientId);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Client not found");
         } catch (Exception e) {
-            System.err.println("Error al guardar carrito: " + e.getMessage());
-            throw new RuntimeException("Error al guardar carrito", e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating cart");
         }
     }
 
@@ -47,50 +61,60 @@ public class CartsController {
     public ResponseEntity<String> deleteCart(@PathVariable Long id) {
         try {
             cartsService.deleteCart(id);
-            return ResponseEntity.ok("Carrito eliminado con éxito");
+            return ResponseEntity.ok("Cart deleted succesfully");
         } catch (Exception exception) {
-            System.err.println("Error borrando carrito: " + exception.getMessage());
+            System.err.println("Error deleting cart: " + exception.getMessage());
             return ResponseEntity.status(500).body("DELETE ERROR");
         }
     }
 
     // Añadir producto al carrito
-    @PostMapping("/{cartId}/addProduct/{productId}")
-    public ResponseEntity<Cart> addProductToCart(@PathVariable Long cartId, @PathVariable Long productId, @RequestParam int quantity) {
+    @PostMapping("/add/{cartId}/{productId}")
+    public ResponseEntity<String> addProductToCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int quantity) {
         try {
-            Cart updatedCart = cartsService.addProductToCart(cartId, productId, quantity);
-            return ResponseEntity.ok(updatedCart);
+            String resultMessage = cartsService.addProductToCart(cartId, productId, quantity);
+            return new ResponseEntity<>(resultMessage, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            System.err.println("Error adding product to cart: " + e.getMessage());
+            return new ResponseEntity<>("Error adding product to cart", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Eliminar una cantidad específica de un producto del carrito
-    @PostMapping("/{cartId}/removeProduct/{productId}")
-    public ResponseEntity<Cart> removeProductFromCart(@PathVariable Long cartId, @PathVariable Long productId, @RequestParam int quantity) {
+    // Eliminar producto del carrito
+    @DeleteMapping("/remove/{cartId}/{productId}")
+    public ResponseEntity<String> removeProductFromCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int quantity) {
         try {
-            Cart updatedCart = cartsService.removeProductFromCart(cartId, productId, quantity);
-            return ResponseEntity.ok(updatedCart);
+            String resultMessage = cartsService.removeProductFromCart(cartId, productId, quantity);
+            return new ResponseEntity<>(resultMessage, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            System.err.println("Error removing product from cart: " + e.getMessage());
+            return new ResponseEntity<>("Error removing product from cart", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Actualizar cantidad de un producto en el carrito
-    @PutMapping("/{cartId}/updateProduct/{productId}")
-    public ResponseEntity<Cart> updateProductQuantity(
+
+
+    // Actualizar cantidad de producto en el carrito
+    @PutMapping("/update/{cartId}/{productId}")
+    public ResponseEntity<String> updateProductQuantity(
             @PathVariable Long cartId,
             @PathVariable Long productId,
             @RequestParam int newQuantity) {
         try {
-            Cart updatedCart = cartsService.updateProductQuantity(cartId, productId, newQuantity);
-            return ResponseEntity.ok(updatedCart);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(400).body(null);
+            String resultMessage = cartsService.updateProductQuantity(cartId, productId, newQuantity);
+            return new ResponseEntity<>(resultMessage, HttpStatus.OK);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            System.err.println("Error updating product quantity in cart: " + e.getMessage());
+            return new ResponseEntity<>("Error updating product quantity in cart", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     // Verificar si el carrito del cliente ha sido entregado
     @GetMapping("/{clientId}/isDelivered")
@@ -106,11 +130,20 @@ public class CartsController {
     }
 
     // Vaciar un carrito
-    @DeleteMapping("/{id}/clear")
-    public ResponseEntity<Cart> clearCart(@PathVariable Long id) {
-        return cartsService.clearCart(id)
-                .map(updatedCart -> new ResponseEntity<>(updatedCart, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @DeleteMapping("/clear/{cartId}")
+    public ResponseEntity<String> clearCart(@PathVariable Long cartId) {
+        try {
+            String resultMessage = cartsService.clearCart(cartId);
+            if ("Empty cart".equals(resultMessage)) {
+                return new ResponseEntity<>(resultMessage, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(resultMessage, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error clearing cart: " + e.getMessage());
+            return new ResponseEntity<>("Error clearing cart", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
 }

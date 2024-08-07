@@ -54,13 +54,16 @@ public class ProductsService {
     }
 
     // Actualizar un producto
-    public Optional<Product> updateProduct(Long id, Product productDetails) {
+    public String updateProduct(Long id, Product productDetails) {
         return productsRepository.findById(id).map(existingProduct -> {
             existingProduct.setName(productDetails.getName());
+            existingProduct.setStock(productDetails.getStock());
             existingProduct.setPrice(productDetails.getPrice());
-            return productsRepository.save(existingProduct);
-        });
+            productsRepository.save(existingProduct);
+            return "Product updated";
+        }).orElse("Product not found");
     }
+
 
 
 

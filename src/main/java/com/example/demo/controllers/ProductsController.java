@@ -64,19 +64,24 @@ public class ProductsController {
         return productsService.findProductsByPriceBetween(minPrice, maxPrice);
     }
 
-    // Actualizar un producto existente
+    // Actualizar un producto
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<String> updateProduct(
             @PathVariable Long id,
             @RequestBody Product productDetails) {
-        Optional<Product> updatedProduct = productsService.updateProduct(id, productDetails);
-
-        if (updatedProduct.isPresent()) {
-            return new ResponseEntity<>(updatedProduct.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            String resultMessage = productsService.updateProduct(id, productDetails);
+            if (resultMessage.equals("Product updated")) {
+                return new ResponseEntity<>(resultMessage, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(resultMessage, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating product: " + e.getMessage());
+            return new ResponseEntity<>("Error updating product", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 }

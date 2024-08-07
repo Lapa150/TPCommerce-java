@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import java.util.Optional;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping(path = "api/v1/invoices")
@@ -19,17 +20,18 @@ public class InvoicesController {
     private InvoicesService invoicesService;
 
 
-    //Generar factura para cliente
-    @PostMapping("/generate/{clientId}")
-    public ResponseEntity<Invoice> generateInvoiceForClient(@PathVariable Long clientId) {
+    // Generar factura para un cliente
+    @PostMapping("/generate-invoice/{clientId}")
+    public ResponseEntity<String> generateInvoiceForClient(@PathVariable Long clientId) {
         try {
-            Invoice generatedInvoice = invoicesService.generateInvoiceForClient(clientId);
-            return ResponseEntity.ok(generatedInvoice);
+            String resultMessage = invoicesService.generateInvoiceForClient(clientId);
+            return new ResponseEntity<>(resultMessage, HttpStatus.OK);
         } catch (Exception e) {
-            System.err.println("Error al generar factura: " + e.getMessage());
-            return ResponseEntity.status(500).body(null);
+            System.err.println("Error generating invoice: " + e.getMessage());
+            return new ResponseEntity<>("Error generating invoice", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
 
@@ -48,9 +50,9 @@ public class InvoicesController {
     public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
         try {
             invoicesService.deleteInvoice(id);
-            return ResponseEntity.ok("Factura eliminada con éxito");
+            return ResponseEntity.ok("Invoice deleted");
         } catch (Exception exception) {
-            System.err.println("Error borrando factura: " + exception.getMessage());
+            System.err.println("Error deleting invoice: " + exception.getMessage());
             return ResponseEntity.status(500).body("DELETE ERROR");
         }
     }

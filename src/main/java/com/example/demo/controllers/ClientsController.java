@@ -8,9 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.services.ClientsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 
 @RestController
 @RequestMapping(path = "api/v1/clients")
@@ -47,27 +51,35 @@ public class ClientsController {
 
     // Mostrar la cantidad de clientes total
     @GetMapping("/count")
-    public long getClientCount() {
-        return clientsService.countClients();
+    public ResponseEntity<String> getClientCount() {
+        long count = clientsService.countClients();
+        String message = "Clients in the application: " + count;
+        return ResponseEntity.ok(message);
     }
 
 
     // Buscar un cliente por email
-    @GetMapping("/exists-by-email")
-    public boolean existsByEmail(@RequestParam String email) {
-        return clientsService.existsByEmail(email);
+    @GetMapping("/by-email")
+    public ResponseEntity<Client> getClientByEmail(@RequestParam String email) {
+        Optional<Client> client = clientsService.getClientByEmail(email);
+        return client.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-    // Endpoint para buscar clientes por nombre
+    // Buscar clientes por nombre
     @GetMapping("/search")
     public List<Client> findClientsByName(@RequestParam String name) {
         return clientsService.findClientsByName(name);
     }
 
-    // Endpoint para obtener clientes con carritos pendientes
+    // Obtener clientes con carritos pendientes
     @GetMapping("/with-pending-carts")
-    public List<Client> getClientsWithPendingCarts() {
-        return clientsService.getClientsWithPendingCarts();
+    public ResponseEntity<?> getClientsWithPendingCarts() {
+        List<Client> clients = clientsService.getClientsWithPendingCarts();
+        if (clients.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No clients with pending carts.");
+        }
+        return ResponseEntity.ok(clients);
     }
 
     // Eliminar un cliente por id
@@ -85,13 +97,28 @@ public class ClientsController {
 
     // Actualizar cliente
     @PutMapping("/{id}")
-    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody Client clientDetails) {
+    public ResponseEntity<Map<String, String>> updateClient(@PathVariable Long id, @RequestBody Client clientDetails) {
         try {
             Optional<Client> updatedClient = clientsService.updateClient(id, clientDetails);
-            return updatedClient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(404).body(null));
+            if (updatedClient.isPresent()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Client updated");
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(404).body(Collections.singletonMap("message", "Client not found"));
+            }
         } catch (Exception e) {
-            System.err.println("Error actualizando cliente: " + e.getMessage());
-            return ResponseEntity.status(500).body(null);
+            System.err.println("Error updating client: " + e.getMessage());
+            return ResponseEntity.status(500).body(Collections.singletonMap("message", "Error updating client"));
         }
     }
+
+
+    // Endpoint para eliminar todos los clientes
+    @DeleteMapping
+    public ResponseEntity<String> deleteAllClients() {
+        clientsService.deleteAllClients();
+        return new ResponseEntity<>("All clients have been deleted", HttpStatus.OK);
+    }
+
 }

@@ -25,10 +25,6 @@ public class InvoicesService {
         this.clientsService = clientsService;
     }
 
-    // Guardar o actualizar una factura
-    public Invoice saveInvoice(Invoice invoice) {
-        return invoicesRepository.save(invoice);
-    }
 
     // Obtener todas las facturas
     public List<Invoice> getAllInvoices() {
@@ -46,15 +42,16 @@ public class InvoicesService {
     }
 
     // Generar factura para un cliente
-    public Invoice generateInvoiceForClient(Long clientId) {
-        Optional<Client> clientOpt = clientsService.getClientById(clientId);
-        if (clientOpt.isPresent()) {
-            Client client = clientOpt.get();
-            Optional<Cart> clientCartOpt = cartsService.getCartForClient(client);
+    public String generateInvoiceForClient(Long clientId) {
+        Optional<Client> clientToPay = clientsService.getClientById(clientId);
+        if (clientToPay.isPresent()) {
+            Client client = clientToPay.get();
+            Optional<Cart> CarrtToDeliver = cartsService.getCartForClient(client);
 
-            if (clientCartOpt.isPresent()) {
-                Cart clientCart = clientCartOpt.get();
-                //Creacion del invoice
+            if (CarrtToDeliver.isPresent()) {
+                Cart clientCart = CarrtToDeliver.get();
+
+
                 Invoice invoice = new Invoice();
                 invoice.setClient(client);
                 invoice.setInvoiceDate(new Date());
@@ -63,12 +60,16 @@ public class InvoicesService {
                 clientCart.setDelivered(true);
                 cartsService.saveCart(clientCart);
 
-                return invoicesRepository.save(invoice);
+                invoicesRepository.save(invoice);
+
+                return "Invoice created";
             } else {
-                throw new RuntimeException("Carrito no encontrado para el cliente con ID: " + clientId);
+                throw new RuntimeException("Cart not found with Id: " + clientId);
             }
         } else {
-            throw new RuntimeException("Cliente no encontrado con ID: " + clientId);
+            throw new RuntimeException("Client not found with Id: " + clientId);
         }
     }
+
 }
+

@@ -26,15 +26,17 @@ public class CartsService {
         this.clientsRepository = clientsRepository;
     }
 
+
     // Crear un nuevo carrito para un cliente
-    public Cart createCartForClient(Long clientId) {
-        Optional<Client> clientOpt = clientsRepository.findById(clientId);
-        if (clientOpt.isPresent()) {
+    public String createCartForClient(Long clientId) {
+        Optional<Client> client = clientsRepository.findById(clientId);
+        if (client.isPresent()) {
             Cart cart = new Cart();
-            cart.setClient(clientOpt.get());
-            return cartsRepository.save(cart);
+            cart.setClient(client.get());
+            cartsRepository.save(cart);
+            return "Cart created for client: " + client.get().getName();
         } else {
-            throw new RuntimeException("Cliente no encontrado");
+            throw new RuntimeException("Client not found");
         }
     }
 
@@ -64,22 +66,23 @@ public class CartsService {
     }
 
     // Añadir producto al carrito
-    public Cart addProductToCart(Long cartId, Long productId, int quantity) {
-        Optional<Cart> cartOpt = cartsRepository.findById(cartId);
-        Optional<Product> productOpt = productsRepository.findById(productId);
+    public String addProductToCart(Long cartId, Long productId, int quantity) {
+        Optional<Cart> cartUsed = cartsRepository.findById(cartId);
+        Optional<Product> productToDeposit = productsRepository.findById(productId);
 
-        if (cartOpt.isPresent() && productOpt.isPresent()) {
-            Cart cart = cartOpt.get();
-            Product product = productOpt.get();
+        if (cartUsed.isPresent() && productToDeposit.isPresent()) {
+            Cart cart = cartUsed.get();
+            Product product = productToDeposit.get();
 
             if (product.getStock() >= quantity) {
                 cart.getProducts().add(product);
                 cart.getQuantities().put(product.getId(), quantity);
-                product.setStock(product.getStock() - quantity); // Restar cantidad del stock
+                product.setStock(product.getStock() - quantity);
                 cart.calculateTotal();
 
-                productsRepository.save(product); // Guardar el producto con el nuevo stock
-                return cartsRepository.save(cart);
+                productsRepository.save(product);
+                cartsRepository.save(cart);
+                return "Products added";
             } else {
                 throw new RuntimeException("Not enough stock");
             }
@@ -87,8 +90,10 @@ public class CartsService {
             throw new RuntimeException("Cart or product not found");
         }
     }
+
+
     // Eliminar producto del carrito
-    public Cart removeProductFromCart(Long cartId, Long productId, int quantity) {
+    public String removeProductFromCart(Long cartId, Long productId, int quantity) {
         Optional<Cart> cartToUpdate = cartsRepository.findById(cartId);
         Optional<Product> productToUpdate = productsRepository.findById(productId);
 
@@ -111,17 +116,20 @@ public class CartsService {
                 productsRepository.save(product);
 
                 cart.calculateTotal();
-                return cartsRepository.save(cart);
+                cartsRepository.save(cart);
+
+                return "Product deleted from cart";
             } else {
-                throw new RuntimeException("La cantidad a eliminar excede la cantidad en el carrito");
+                throw new RuntimeException("The quantity to be removed exceeds the quantity in the cart");
             }
         } else {
-            throw new RuntimeException("Carrito o producto no encontrado");
+            throw new RuntimeException("Cart or product not found");
         }
     }
 
+
     // Actualizar cantidad de producto en el carrito
-    public Cart updateProductQuantity(Long cartId, Long productId, int newQuantity) {
+    public String updateProductQuantity(Long cartId, Long productId, int newQuantity) {
         Optional<Cart> cartToUpdate = cartsRepository.findById(cartId);
         Optional<Product> productToUpdate = productsRepository.findById(productId);
 
@@ -139,7 +147,9 @@ public class CartsService {
                 productsRepository.save(product);
 
                 cart.calculateTotal();
-                return cartsRepository.save(cart);
+                cartsRepository.save(cart);
+
+                return "Product updated in cart";
             } else {
                 throw new RuntimeException("Not enough stock to update quantity");
             }
@@ -147,6 +157,7 @@ public class CartsService {
             throw new RuntimeException("Cart or product not found");
         }
     }
+
 
     // Verificar si el carrito del cliente ha sido entregado
     public String isCartDelivered(Long clientId) {
@@ -168,12 +179,13 @@ public class CartsService {
             throw new RuntimeException("Cliente no encontrado con ID: " + clientId);
         }
     }
-
     // Método para vaciar un carrito
-    public Optional<Cart> clearCart(Long cartId) {
+    public String clearCart(Long cartId) {
         return cartsRepository.findById(cartId).map(cart -> {
             cart.getProducts().clear();
-            return cartsRepository.save(cart);
-        });
+            cartsRepository.save(cart);
+            return "Empty cart";
+        }).orElse("Cart not found");
     }
+
 }
